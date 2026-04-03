@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fizik · Osman Torehan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14;
+  --surface: #0d1220;
+  --surface2: #131926;
+  --border: rgba(100,160,255,0.12);
+  --border2: rgba(100,160,255,0.22);
+  --blue: #4a9eff;
+  --blue-dim: rgba(74,158,255,0.18);
+  --gold: #c8943a;
+  --gold-dim: rgba(200,148,58,0.15);
+  --text: #c8cdd8;
+  --text-dim: #5a6278;
+  --text-bright: #e8edf8;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Outfit', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── Canvas BG ── */
+#canvas-bg {
+  position: fixed; inset: 0; z-index: 0;
+  opacity: 0.35; pointer-events: none;
+}
+
+/* ── Layout ── */
+.page { position: relative; z-index: 1; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 3rem;
+  background: rgba(8,12,20,0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.nav-brand {
+  font-family: var(--serif);
+  font-size: 17px; font-weight: 400;
+  color: var(--text-bright);
+  letter-spacing: 0.01em;
+}
+.nav-brand span { color: var(--blue); }
+
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  color: var(--text-dim); font-size: 13px;
+  text-decoration: none; letter-spacing: 0.06em;
+  text-transform: uppercase; transition: color .2s;
+}
+.nav-links a:hover { color: var(--blue); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-start;
+  padding: 7rem 3rem 4rem;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 11px; font-weight: 300;
+  color: var(--blue); letter-spacing: 0.2em; text-transform: uppercase;
+  margin-bottom: 1.5rem; opacity: 0;
+  animation: fadeUp .8s ease forwards .2s;
+}
+
+.hero-title {
+  font-family: var(--serif); font-size: clamp(52px, 7vw, 96px);
+  font-weight: 300; line-height: 1.05; color: var(--text-bright);
+  margin-bottom: 0.5rem; max-width: 700px;
+  opacity: 0; animation: fadeUp .9s ease forwards .4s;
+}
+.hero-title em { font-style: italic; color: var(--blue); }
+
+.hero-subtitle {
+  font-family: var(--serif); font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 300; font-style: italic; color: var(--text-dim);
+  margin-bottom: 2.5rem; letter-spacing: 0.01em;
+  opacity: 0; animation: fadeUp .9s ease forwards .55s;
+}
+
+.hero-cta {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp .9s ease forwards .7s;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.65rem 1.5rem; border-radius: 2px; font-size: 13px;
+  font-family: var(--sans); font-weight: 400; cursor: pointer;
+  text-decoration: none; transition: all .25s; letter-spacing: 0.04em;
+}
+.btn-primary {
+  background: var(--blue); color: #080c14; border: none;
+}
+.btn-primary:hover { background: #6eb4ff; transform: translateY(-1px); }
+.btn-secondary {
+  background: transparent; color: var(--text);
+  border: 0.5px solid var(--border2);
+}
+.btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
+
+.hero-quote {
+  position: absolute; right: 3rem; bottom: 4rem;
+  max-width: 320px; text-align: right;
+  opacity: 0; animation: fadeUp .9s ease forwards 1s;
+}
+.hero-quote blockquote {
+  font-family: var(--serif); font-size: 17px; font-style: italic;
+  color: var(--text-dim); line-height: 1.6; margin-bottom: 0.5rem;
+}
+.hero-quote cite {
+  font-size: 11px; font-family: var(--mono);
+  color: var(--gold); letter-spacing: 0.1em;
+}
+
+/* ── SECTION ── */
+section { padding: 5rem 3rem; }
+section + section { border-top: 0.5px solid var(--border); }
+
+.section-label {
+  font-family: var(--mono); font-size: 10px; font-weight: 300;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue);
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: var(--serif); font-size: clamp(28px, 4vw, 42px);
+  font-weight: 300; color: var(--text-bright); margin-bottom: 2.5rem;
+  line-height: 1.2;
+}
+
+/* ── POSTS ── */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.post-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 4px; padding: 1.5rem 1.75rem;
+  transition: border-color .25s, transform .25s;
+  cursor: pointer; text-decoration: none;
+  display: block;
+}
+.post-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-3px);
+}
+.post-date {
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  letter-spacing: 0.1em; margin-bottom: 0.75rem;
+}
+.post-title {
+  font-family: var(--serif); font-size: 22px; font-weight: 400;
+  color: var(--text-bright); margin-bottom: 0.5rem; line-height: 1.3;
+}
+.post-desc {
+  font-size: 13px; color: var(--text-dim); line-height: 1.65;
+  margin-bottom: 1rem;
+}
+.post-tag {
+  display: inline-block; font-size: 10px; padding: 2px 8px;
+  border-radius: 20px; background: var(--blue-dim);
+  color: var(--blue); border: 0.5px solid rgba(74,158,255,0.3);
+  font-family: var(--mono); letter-spacing: 0.06em;
+}
+
+/* ── SIMÜLASYON ── */
+.sims-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.sim-card {
+  background: var(--surface2); border: 0.5px solid var(--border);
+  border-radius: 4px; padding: 1.25rem 1.5rem;
+  display: flex; align-items: flex-start; gap: 1rem;
+  text-decoration: none; transition: all .2s;
+}
+.sim-card:hover {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+.sim-icon {
+  width: 36px; height: 36px; border-radius: 4px;
+  background: var(--gold-dim); border: 0.5px solid rgba(200,148,58,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.sim-info {}
+.sim-name { font-size: 14px; font-weight: 400; color: var(--text-bright); margin-bottom: 3px; }
+.sim-src { font-family: var(--mono); font-size: 10px; color: var(--gold); letter-spacing: 0.06em; }
+
+/* ── KONULAR ── */
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.topic-item {
+  border: 0.5px solid var(--border); border-radius: 2px;
+  padding: 1.25rem 1rem; text-align: center;
+  transition: all .2s; cursor: default;
+}
+.topic-item:hover { border-color: var(--border2); background: var(--surface); }
+.topic-icon { font-size: 28px; display: block; margin-bottom: 0.5rem; }
+.topic-name { font-size: 13px; color: var(--text); font-weight: 400; }
+.topic-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
+
+/* ── EINSTEIN ── */
+.einstein-section {
+  background: var(--surface);
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; align-items: center;
+}
+
+.einstein-quote-main {
+  font-family: var(--serif); font-size: clamp(22px, 3vw, 36px);
+  font-weight: 300; font-style: italic;
+  color: var(--text-bright); line-height: 1.4;
+  border-left: 2px solid var(--blue);
+  padding-left: 1.5rem;
+}
+.einstein-quote-en {
+  font-family: var(--serif); font-size: clamp(16px, 2vw, 22px);
+  font-weight: 300; font-style: italic;
+  color: var(--text-dim); line-height: 1.5;
+  border-left: 2px solid var(--gold);
+  padding-left: 1.5rem;
+  margin-top: 2rem;
+}
+.einstein-cite {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--gold); letter-spacing: 0.1em;
+  margin-top: 1rem; display: block;
+}
+
+.einstein-visual {
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.formula-chip {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--blue); background: var(--blue-dim);
+  border: 0.5px solid rgba(74,158,255,0.25);
+  padding: 0.6rem 1rem; border-radius: 2px;
+  opacity: 0.85;
+  animation: pulse 4s ease-in-out infinite;
+}
+.formula-chip:nth-child(2) { animation-delay: 1.3s; }
+.formula-chip:nth-child(3) { animation-delay: 2.6s; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 3rem; border-top: 0.5px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-brand { font-family: var(--serif); font-size: 18px; color: var(--text-dim); }
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a { font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+.footer-links a:hover { color: var(--blue); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.25rem; }
+  .nav-links { display: none; }
+  .hero { padding: 6rem 1.25rem 3rem; }
+  .hero-quote { display: none; }
+  section { padding: 3.5rem 1.25rem; }
+  .einstein-section { grid-template-columns: 1fr; gap: 2rem; }
+  footer { flex-direction: column; align-items: flex-start; padding: 2rem 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<div class="page">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">φυσική · <span>Torehan Fizik</span></div>
+  <ul class="nav-links">
+    <li><a href="#yazilar">Yazılar</a></li>
+    <li><a href="#simulasyon">Simülasyonlar</a></li>
+    <li><a href="#konular">Konular</a></li>
+    <li><a href="#hakkinda">Hakkında</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">PHYSICS · FİZİK · PHYSICA · φυσική</div>
+  <h1 class="hero-title">Fiziği <em>keşfet</em>,<br>evreni anla.</h1>
+  <p class="hero-subtitle">Fizik dersinde aradığınız her şey için</p>
+  <div class="hero-cta">
+    <a href="#yazilar" class="btn btn-primary">Yazıları Gör</a>
+    <a href="#simulasyon" class="btn btn-secondary">Simülasyonlar →</a>
+  </div>
+  <div class="hero-quote">
+    <blockquote>Bir insanın zekası verdiği cevaplardan değil; soracağı sorulardan anlaşılır.</blockquote>
+    <cite>— Albert Einstein</cite>
+  </div>
+</section>
+
+<!-- KONULAR -->
+<section id="konular">
+  <div class="section-label">Müfredat</div>
+  <div class="section-title reveal">Konu Alanları</div>
+  <div class="topics-grid">
+    <div class="topic-item reveal"><span class="topic-icon">⚡</span><div class="topic-name">Elektrik &amp; Manyetizma</div><div class="topic-sub">E &amp; M</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">🌊</span><div class="topic-name">Dalgalar &amp; Ses</div><div class="topic-sub">Waves</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">🔭</span><div class="topic-name">Optik</div><div class="topic-sub">Optics</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">🚀</span><div class="topic-name">Mekanik</div><div class="topic-sub">Mechanics</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">🔥</span><div class="topic-name">Termodinamik</div><div class="topic-sub">Thermodynamics</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">⚛️</span><div class="topic-name">Modern Fizik</div><div class="topic-sub">Quantum &amp; Relativity</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">📡</span><div class="topic-name">Elektromanyetik Dalgalar</div><div class="topic-sub">EM Waves</div></div>
+    <div class="topic-item reveal"><span class="topic-icon">🧲</span><div class="topic-name">Enerji</div><div class="topic-sub">Energy</div></div>
+  </div>
+</section>
+
+<!-- YAZILAR -->
+<section id="yazilar">
+  <div class="section-label">Blog</div>
+  <div class="section-title reveal">Son Yazılar</div>
+  <div class="posts-grid">
+    <a class="post-card reveal" href="https://torehanfizik.blogspot.com/2025/05/youtube-videolar.html" target="_blank" rel="noopener">
+      <div class="post-date">2.5.2025</div>
+      <div class="post-title">YouTube Videolar</div>
+      <div class="post-desc">Fizik konularını görsel anlatımlarla destekleyen seçilmiş video kaynakları.</div>
+      <span class="post-tag">Kaynak</span>
+    </a>
+    <a class="post-card reveal" href="https://torehanfizik.blogspot.com/2024/02/mikrodalgalar.html" target="_blank" rel="noopener">
+      <div class="post-date">23.2.2024</div>
+      <div class="post-title">Mikrodalgalar</div>
+      <div class="post-desc">Elektromanyetik spektrumun mikrodalga bölgesi ve teknolojik uygulamaları.</div>
+      <span class="post-tag">EM Dalgalar</span>
+    </a>
+    <a class="post-card reveal" href="https://torehanfizik.blogspot.com/2023/10/enerji.html" target="_blank" rel="noopener">
+      <div class="post-date">21.10.2023</div>
+      <div class="post-title">Enerji</div>
+      <div class="post-desc">PhET simülasyonları ve Walter Lewin dersleriyle enerjinin korunumu.</div>
+      <span class="post-tag">Mekanik</span>
+    </a>
+    <a class="post-card reveal" href="https://torehanfizik.blogspot.com/2023/04/deha-albert-einstein.html" target="_blank" rel="noopener">
+      <div class="post-date">8.4.2023</div>
+      <div class="post-title">Deha — Albert Einstein</div>
+      <div class="post-desc">Fiziğin devrimini tek başına yaşatan dahinin hikayesi ve bilime armağanları.</div>
+      <span class="post-tag">Fizik Tarihi</span>
+    </a>
+    <a class="post-card reveal" href="https://torehanfizik.blogspot.com/2021/04/arsimet-aynalar-ve-basit-makineler.html" target="_blank" rel="noopener">
+      <div class="post-date">18.4.2021</div>
+      <div class="post-title">Arşimet · Aynalar · Basit Makineler</div>
+      <div class="post-desc">Kaldırma kuvveti, yansıma ve mekanik avantaj üzerine deney notları.</div>
+      <span class="post-tag">Mekanik · Optik</span>
+    </a>
+    <a class="post-card reveal" href="https://torehanfizik.blogspot.com/p/guncel-duyurular.html" target="_blank" rel="noopener">
+      <div class="post-date">Dökümanlar</div>
+      <div class="post-title">Kaynak &amp; Dökümanlar</div>
+      <div class="post-desc">Ders notları, soru bankaları ve müfredata uygun kaynak dosyalar.</div>
+      <span class="post-tag">Döküman</span>
+    </a>
+  </div>
+</section>
+
+<!-- SİMÜLASYONLAR -->
+<section id="simulasyon">
+  <div class="section-label">İnteraktif</div>
+  <div class="section-title reveal">Simülasyonlar &amp; Videolar</div>
+  <div class="sims-grid">
+    <a class="sim-card reveal" href="https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_all.html?locale=tr" target="_blank" rel="noopener">
+      <div class="sim-icon">🔭</div>
+      <div class="sim-info">
+        <div class="sim-name">Işığın Kırılması</div>
+        <div class="sim-src">PhET Colorado</div>
+      </div>
+    </a>
+    <a class="sim-card reveal" href="https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_en.html" target="_blank" rel="noopener">
+      <div class="sim-icon">🛹</div>
+      <div class="sim-info">
+        <div class="sim-name">Enerji Skate Park</div>
+        <div class="sim-src">PhET Colorado</div>
+      </div>
+    </a>
+    <a class="sim-card reveal" href="https://www.youtube.com/watch?v=sJG-rXBbmCc" target="_blank" rel="noopener">
+      <div class="sim-icon">▶</div>
+      <div class="sim-info">
+        <div class="sim-name">Fizik Kanunları Çalışmasa Ne Olur?</div>
+        <div class="sim-src">Walter Lewin · YouTube</div>
+      </div>
+    </a>
+    <a class="sim-card reveal" href="https://www.youtube.com/watch?v=87E0DKs5bok" target="_blank" rel="noopener">
+      <div class="sim-icon">▶</div>
+      <div class="sim-info">
+        <div class="sim-name">Enerjinin Korunumu Görselleştirmesi</div>
+        <div class="sim-src">YouTube</div>
+      </div>
+    </a>
+    <a class="sim-card reveal" href="https://phet.colorado.edu/tr" target="_blank" rel="noopener">
+      <div class="sim-icon">⚛️</div>
+      <div class="sim-info">
+        <div class="sim-name">PhET Tüm Simülasyonlar (Türkçe)</div>
+        <div class="sim-src">PhET Colorado</div>
+      </div>
+    </a>
+    <a class="sim-card reveal" href="https://www.youtube.com/@torehanfizik" target="_blank" rel="noopener">
+      <div class="sim-icon">📺</div>
+      <div class="sim-info">
+        <div class="sim-name">Torehan Fizik YouTube Kanalı</div>
+        <div class="sim-src">YouTube</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- EINSTEİN -->
+<section class="einstein-section" id="hakkinda">
+  <div>
+    <div class="section-label">İlham</div>
+    <div class="einstein-quote-main reveal">
+      "Bir insanın zekası verdiği cevaplardan değil; soracağı sorulardan anlaşılır."
+    </div>
+    <div class="einstein-quote-en reveal">
+      "I never teach my pupils. I only attempt to provide the conditions in which they can learn."
+    </div>
+    <cite class="einstein-cite reveal">— Albert Einstein</cite>
+  </div>
+  <div class="einstein-visual reveal">
+    <div class="formula-chip">E = mc²</div>
+    <div class="formula-chip">F = ma</div>
+    <div class="formula-chip">∇ · E = ρ/ε₀</div>
+    <div class="formula-chip">ΔxΔp ≥ ℏ/2</div>
+    <div class="formula-chip">n₁ sin θ₁ = n₂ sin θ₂</div>
+    <div class="formula-chip">P = IV = I²R</div>
+    <div style="margin-top:1rem;font-size:13px;color:var(--text-dim);line-height:1.7;">
+      Fizik öğretmeni · Eskişehir<br>
+      <a href="http://www.torehanfizik.blogspot.com" target="_blank" style="color:var(--blue);text-decoration:none;">torehanfizik.blogspot.com</a><br>
+      <a href="http://www.osmangurel.blogspot.com" target="_blank" style="color:var(--blue);text-decoration:none;margin-top:4px;display:inline-block;">osmangurel.blogspot.com</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">φυσική · Torehan Fizik</div>
+  <div class="footer-links">
+    <a href="https://torehanfizik.blogspot.com" target="_blank">Blog</a>
+    <a href="https://torehanfizik.blogspot.com/p/guncel-duyurular.html" target="_blank">Dökümanlar</a>
+    <a href="https://torehanfizik.blogspot.com/p/paylasim.html" target="_blank">Paylaşım</a>
+    <a href="http://www.osmangurel.blogspot.com" target="_blank">Diğer Blog</a>
+  </div>
+</footer>
+
+</div><!-- /page -->
+
+<script>
+/* ── Particle Canvas ── */
+const canvas = document.getElementById('canvas-bg');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+class Particle {
+  constructor(){
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - .5) * .4;
+    this.vy = (Math.random() - .5) * .4;
+    this.r = Math.random() * 1.5 + .5;
+    this.alpha = Math.random() * .5 + .2;
+  }
+  update(){
+    this.x += this.vx; this.y += this.vy;
+    if(this.x < 0) this.x = W;
+    if(this.x > W) this.x = 0;
+    if(this.y < 0) this.y = H;
+    if(this.y > H) this.y = 0;
+  }
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(74,158,255,${this.alpha})`;
+    ctx.fill();
+  }
+}
+
+for(let i = 0; i < 90; i++) particles.push(new Particle());
+
+function drawConnections(){
+  for(let i = 0; i < particles.length; i++){
+    for(let j = i+1; j < particles.length; j++){
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if(d < 120){
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(74,158,255,${(1-d/120)*0.15})`;
+        ctx.lineWidth = .5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate(){
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawConnections();
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ── Scroll Reveal ── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 0.08 + 's';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
